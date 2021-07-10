@@ -761,15 +761,539 @@ enum DaysOfWeek{
 ```
 Ejemplo 1
 
+
 ```java
 
-enum DaysOfWeek{
-    SUNDAY,MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals
+Topic : Enum Type
+*/
+
+// Declaring an enum type with 7 constants
+public enum DaysOfTheWeek {
+    // Note that it is not required to make all constants uppercase,
+    // but is considered best practice
+    sunday, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+}
+
+class TestDaysOfTheWeek {
+    public static void main(String[] args) {
+
+        // We can loop through the list of values..
+        for (DaysOfTheWeek day : DaysOfTheWeek.values()) {
+            System.out.println(day.ordinal() + " is " + day);
+            switch (day) {
+                case MONDAY:
+                case TUESDAY:
+                    System.out.println("Long road ahead");
+                    break;
+                case WEDNESDAY:
+                    System.out.println("Hump day");
+                    break;
+                case THURSDAY:
+                    System.out.println("TGIF - 1");
+                    break;
+                case FRIDAY:
+                    System.out.println("TGIF");
+                    break;
+                case SATURDAY:
+                case sunday:
+                    System.out.println("Wonderful Weekend");
+            }
+        }
+
+        // Example of using the valueOf() static method
+        System.out.println(DaysOfTheWeek.valueOf("WEDNESDAY"));
+    }
+}
+
+```
+
+### Enums member
+
+Al ser una clase puede tener member como 
+1. campos
+2. metodos
+3. constructores( solo pueden marcarse como privados o no marcar)
+4. inner class
+5. interfaces
+6. nested enums
+
+
+** El orden de los campos corresponde al orden de los parametros en los constructores  
+
+** Los campos,metodos,constructores aplican para cada constante enum definido en el cuerpo  
+
+** Con EnumConstant.campo se accede al valor del enum  
+
+** En los metodos se accede al enum con this.campo
+
+```java
+
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals
+Topic : Enum Type
+*/
+
+enum WeekDays {
+    // The values after the constants enclosed in parentheses are
+    // the values used in the constructor(s)
+    SUNDAY("Sun", "Wonderful Weekend"),
+    MONDAY("Mon", "Long road ahead"),
+    TUESDAY("Tues", "Long road ahead"),
+    WEDNESDAY("Wed", "Hump day"),
+    THURSDAY("Thurs", "TGIF - 1"),
+    FRIDAY("Fri"),   // All constants need not execute same constructor
+    SATURDAY("Sat", "Wonderful Weekend");  // Semi-colon required!
+
+    // You can define fields on an enum
+    String abbreviation;
+    String description = "TGIF";
+
+    // You can define zero to many constructors on an enum
+    WeekDays(String abbreviation) {
+        this.abbreviation = abbreviation;
+    }
+
+    WeekDays(String abbreviation, String description) {
+        this.abbreviation = abbreviation;
+        this.description = description;
+    }
+
+    public String printType() {
+        // Each enum gets a copy of this method, so each
+        // enum constant instance can be referred to as this.
+        if (this == SATURDAY || this == SUNDAY) return "Weekend";
+        return "Weekday";
+    }
+}
+
+public class ComplexEnumExample {
+    public static void main(String[] args) {
+
+        // Loop through the list of values..
+        for (WeekDays day : WeekDays.values()) {
+            // You can access enum attributes from enum value
+            System.out.println(day.ordinal() + " is " + day.abbreviation +
+                    " (" + day.printType() + "): " + day.description);
+        }
+
+        // You can execute a method on the enum through a reference
+        // to one of the constants...
+        System.out.println(WeekDays.SATURDAY + " is a " +
+                WeekDays.SATURDAY.printType());
+    }
+}
+
+```
+
+### Enum Constants with class body  
+
+Si define un contructores los enum constants deben de implementar por los menos uno  
+
+Si se definen metodos abstracto cada enum constants deben implementar el metodos abstract  
+
+Si define un metodo con implementacion las constantes enum pueden sobrescribir el metodo
+
+internamente se define una clase anonima constante que implementa
+
+```java
+
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals
+Topic: Enum Type
+*/
+
+public enum PinochleMeld {
+    // -- Begin the enum constants list
+    PINOCHLE(4) {
+        // describe() overrides abstract method declared in enum body
+        public void describe() {
+            System.out.println(this + ": Jack of Diamonds, Queen of Spades");
+        }
+        // Declaring a public method does not mean it will be
+        // accessible to the outside world...
+        public void printSomeAdditionalInfo() {
+            System.out.println("Two pinochles is rare and is 30 points");
+        }
+    },
+    MARRIAGE(2) {
+        // This method declared in an enum constant body block
+        int adjustScore() {
+            return 2;
+        }
+
+        // describe() overrides abstract method declared in enum body
+        public void describe() {
+            System.out.println(this + ": King and Queen of a single suit");
+        }
+    },
+    //..... ADDITIONAL ITEMS would go here ....
+    NINE_OF_TRUMP(1) {
+        // describe() overrides abstract method declared in enum body
+        public void describe() {
+            System.out.println(this + ": Nine of trump suit");
+        }
+    };  // Note the semi-colon here end of constants.
+
+    // -- Begin the enum body declaration
+    protected int score;
+
+    PinochleMeld(int score) {
+        this.score = score;
+    }
+
+    // An enum body can have a concrete method which the enum constant  
+    // bodies can optionally override.
+    int adjustScore() {
+        return 0;
+    }
+
+    // Method each constant would need to override...
+    abstract public void describe();
+}
+
+class PinochleGame {
+
+    // main method demonstrates use of an enum constant method
+    public static void main(String[] args) {
+        int count = 0;
+
+        // You can declare an array of the enum type...
+        PinochleMeld[] hand = {
+                PinochleMeld.PINOCHLE,
+                PinochleMeld.MARRIAGE,
+                PinochleMeld.NINE_OF_TRUMP};
+
+        // Loop through player's hand (represented by the array hand)
+        for (PinochleMeld points : hand) {
+
+            // call method on the enum constant
+            points.describe();
+
+            // Add up scores using the adjustScore in the enum
+            // constant (if it overrides the one in the enum body.
+            count += (points.score + points.adjustScore());
+
+            // Accessing an enum constant's public method only allowed if
+            // the method is declared in enum body with appropriate modifiers
+//            points.printSomeAdditionalInfo();
+        }
+
+        System.out.println("Example meld score = " + count);
+    }
+}
+
+```
+
+### Ejemplo con clases anidadas de segundo nivel 
+
+1. Se puede realiza tomando una clase anidada anterior
+
+```java
+
+        // Create a local variable using the public inner class
+        OuterMost.PublicInner publicInner = outer.new PublicInner();
+
+            OuterMost.PublicInner.NestedInnerSecondLevel nested =
+    publicInner.new NestedInnerSecondLevel();
+
+```
+
+2. Encadenado las intancias desde el inicio
+
+
+```java
+
+
+
+OuterMost.PublicInner.NestedInnerSecondLevel alternate =
+                new OuterMost()
+                        .new PublicInner()
+                        .new NestedInnerSecondLevel();
+
+```
+
+
+### Herencia en nested class
+
+1. Los members de clases son accesibles para las clases que hereden la clase
+
+2. Se puede extener de una inner class haciendo referencia
+
+3. Implicitamente los llamados a un member que se hereda incluyen this , por lo cual  
+   al intendar inicializar una clase nested en el main marcara error ya que requiere primero una intancia
+
+4. para heredar de una clase Nested requiere que se herede primero la clase que lo compone, ya que en otro  
+caso genera error al tratar de usar un clase al cual no se tiene acceso
+
+```java
+
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals
+Topic: Inner Classes, Extras
+*/
+public class OuterMost {
+
+    private String OuterString = "Attribute of OuterMost class";
+
+    // public inner class member
+    public class PublicInner {
+        private String InnerString = "Attribute of Public inner class";
+
+        // Constructor
+        public PublicInner() {
+            // reference enclosing object's fields with simple name
+            System.out.println("PublicInner instantiated, OuterString = " +
+                    OuterString);
+            // reference enclosing object's fields with class name & this
+            System.out.println("PublicInner instantiated, OuterString = " +
+                    OuterMost.this.OuterString);
+        }
+
+        // This inner class is now two levels deep
+        public class NestedInnerSecondLevel {
+            public NestedInnerSecondLevel() {
+
+                // reference enclosing object's fields with simple name
+                System.out.println("NestedInnerSecondLevel instantiated,"
+                        + " OuterString = " + OuterString);
+
+                // reference enclosing object's fields with class name & this
+                System.out.println("NestedInnerSecondLevel instantiated," +
+                        " OuterString = " + OuterMost.this.OuterString);
+
+                // reference enclosing object's fields with simple name
+                System.out.println("NestedInnerSecondLevel instantiated," +
+                        " InnerString = " + InnerString);
+
+                // reference enclosing object's fields with class name & this
+                System.out.println("NestedInnerSecondLevel instantiated," +
+                        " InnerString = " + OuterMost.PublicInner.this.InnerString);
+
+            }
+        }
+
+    }
+
+    // package/private inner class member
+    class PackageInner {
+        // Constructor
+        public PackageInner() {
+            System.out.println("PackageInner instantiated");
+        }
+    }
+
+    // protected inner class member
+    protected class ProtectedInner {
+        // Constructor
+        public ProtectedInner() {
+            System.out.println("ProtectedInner instantiated");
+        }
+    }
+
+    // private inner class member
+    private class PrivateInner {
+        // Constructor
+        public PrivateInner() {
+            System.out.println("PrivateInner instantiated");
+        }
+    }
+}
+
+class InnerClassExtras {
+    public static void main(String[] args) {
+
+        OuterMost outer = new OuterMost();
+
+        // To access inner classes (from an unrelated class), an object
+        // reference of the enclosing class is required, using .new construct.
+
+        // Create a local variable using the public inner class
+        OuterMost.PublicInner publicInner = outer.new PublicInner();
+
+        // Create a local variable using the package-private inner class
+        OuterMost.PackageInner packageInner = outer.new PackageInner();
+
+        // Create a local variable using the protected inner class
+        OuterMost.ProtectedInner protectedInner = outer.new ProtectedInner();
+
+        System.out.println("\n--- Accessing a class two levels deep");
+        // Create a local variable for the more nested inner class using
+        // previous local variable publicInner
+        OuterMost.PublicInner.NestedInnerSecondLevel nested =
+                publicInner.new NestedInnerSecondLevel();
+
+        // Or alternately chain instantiations outer to inner...
+        OuterMost.PublicInner.NestedInnerSecondLevel alternate =
+                new OuterMost()
+                        .new PublicInner()
+                        .new NestedInnerSecondLevel();
+    }
+}
+
+```
+
+```java
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals 
+Topic:  Nested Class, Extras
+*/
+
+public class TestInheritance extends OuterMost {
+    public static void main(String[] args) {
+        new TestInheritance().testInnerClassMembers();
+    }
+
+    private void testInnerClassMembers() {
+        // non-static method - instance of current class exists so inner
+        // classes (with the right access modifiers) are available...
+        new ProtectedInner();
+        // First Level
+        new PublicInner();
+
+        this.new ProtectedInner();
+        // First Level
+        this.new PublicInner();
+
+        // Second Level
+        new PublicInner().new NestedInnerSecondLevel();
+
+        // Customized Second Level
+        new KeepExtending();
+    }
+
+    // This inner class extends the inner class that was inherited
+    // from the OuterMost class
+    class KeepExtending extends OuterMost.PublicInner {
+        KeepExtending() {
+            System.out.println("Extend the inner class as an " +
+                    "inherited member");
+        }
+
+        class ExtendingFurther extends
+                OuterMost.PublicInner.NestedInnerSecondLevel {
+            ExtendingFurther() {
+                System.out.println("Extending a deeper level of " +
+                        "an inherited member");
+            }
+        }
+    }
+}
+
+```
+
+### NestedClass con variables finales
+
+
+1. Si una variable con o sin el modificador final se reasigna no puede utilizarse por una nested class  
+marcaria error de compilacion
+```java
+
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals 
+Topic:  Nested Class, local Class, effectively final review
+*/
+
+// Simple class demonstrating a local class in a method
+public class EffectivelyFinal {
+
+    public static void main(String[] args) {
+
+        // Create a local variable and assign it a value
+        int efinal = 1;
+
+        // Local Class created with a single method that
+        // uses the efinal local variable just created
+        class LocalClass {
+            public void printValue() {
+                System.out.println("efinal = " + efinal);
+            }
+        }
+
+        // Execute method on the local class
+        new LocalClass().printValue();
+    }
 }
 
 ```
 
 
+
+
+### Orden de ejecucion de codigo en un Enum
+
+``` java
+
+/*
+The Learn Programming Academy
+Java SE 11 Developer 1Z0-819 OCP Course - Part 2
+Section 1: Java Fundamentals 
+Topic:  Enum Extras
+*/
+ enum PrimaryColor {
+    RED(1) {
+        {
+            // initializer for the individual class constants
+            System.out.println(this + " initialized");
+        }
+    },
+    BLUE(2) {
+
+        {
+            // initializer for the individual class constants
+            System.out.println(this + " initialized");
+        }
+    },
+    YELLOW(3) {
+        {
+            // initializer for the individual class constants
+            System.out.println(this + " initialized");
+        }
+    };
+
+    int rating = 0;
+
+    // static initializer for the PrimaryColor class (enum)
+    static {
+        System.out.println("Enum Class Initialization");
+    }
+
+    // initializer for all of the anonymous class constants
+    {
+        System.out.println("Enum Body Initialization for " + this);
+    }
+
+    // Constructor
+    PrimaryColor(int rating) {
+        System.out.println("Primary Color constructor for " + this);
+        this.rating = rating;
+    }
+}
+
+public class EnumExtras {
+    public static void main(String[] args) {
+
+        System.out.println(PrimaryColor.RED);
+        System.out.println(PrimaryColor.BLUE);
+        System.out.println(PrimaryColor.YELLOW);
+    }
+}
+
+
+```
 
 
 ## Exception Handling and Assertions
